@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+  </head>
+  <body>
+    <h1>Northeastern University operational costs in Fiscal Year <span id="titleYear">2019</span> (ending June 30)</h1>
+    <div id="chart"></div>
+    <div id="totalContainer">
+      <p><i>Total Operating Expense: <span id="totalExpense">$1,269,456</span></i></p>
+    </div>
+    <div id="buttons">
+      <button class= "buttonNormal" id="button1" onclick="update(data1)">2015</button>
+      <button class= "buttonNormal" id="button2" onclick="update(data2)">2016</button>
+      <button class= "buttonNormal" id="button3" onclick="update(data3)">2017</button>
+      <button class= "buttonNormal" id="button4" onclick="update(data4)">2018</button>
+      <button class= "buttonNormal" id="button5" onclick="update(data5)">2019</button>
+    </div>
+    <div id="bottomText">
+      <p class = "explainer">Use the buttons to explore the operational expenses of Northeastern University from fiscal year 2015 through fiscal year 2019.<br/>A fiscal year refers to the period of time between July 1 and June 30, with fiscal year 2020 beginning July 1, 2019 and ending June 30, 2020.</p>
+      <p class = "credit">Data from <a href="https://drive.google.com/file/d/1BB-e1vTf1h4AI7t9u7TulS3APOleIUMX/view?usp=sharing" target=_blank>Northeastern University Bond Offering Memorandum</a> from June 24. Appendix A, page 14.</p>
+      <p class = "credit">Graphic by <a href="https://huntnewsnu.com/team/?writer=Avery%20Bleichfeld" target=_blank>Avery Bleichfeld</a></p>
+    </div>
+    <script>
+
+      var data1 = [
+        {x: "Instruction", y: 394572},
+        {x: "Research", y: 102718},
+        {x: "Academic support", y: 132189},
+        {x: "Student services", y: 117956},
+        {x: "Institutional support", y: 119617},
+        {x: "Auxiliary enterprises", y: 114837},
+        {x: "Other", y: 6597}];
+
+      var data2 = [
+        {x: "Instruction", y: 405210},
+        {x: "Research", y: 106989},
+        {x: "Academic support", y: 153788},
+        {x: "Student services", y: 120628},
+        {x: "Institutional support", y: 121648},
+        {x: "Auxiliary enterprises", y: 122533},
+        {x: "Other", y: 4883}];
+
+      var data3 = [
+        {x: "Instruction", y: 416942},
+        {x: "Research", y: 122924},
+        {x: "Academic support", y: 179582},
+        {x: "Student services", y: 121876},
+        {x: "Institutional support", y: 130602},
+        {x: "Auxiliary enterprises", y: 119497},
+        {x: "Other", y: 3901}];
+
+      var data4 = [
+        {x: "Instruction", y: 448290},
+        {x: "Research", y: 154745},
+        {x: "Academic support", y: 193080},
+        {x: "Student services", y: 131290},
+        {x: "Institutional support", y: 140567},
+        {x: "Auxiliary enterprises", y: 127753},
+        {x: "Other", y: 3171}];
+
+      var data5 = [
+        {x: "Instruction", y: 472495},
+        {x: "Research", y: 170142},
+        {x: "Academic support", y: 200491},
+        {x: "Student services", y: 136771},
+        {x: "Institutional support", y: 153454},
+        {x: "Auxiliary enterprises", y: 132639},
+        {x: "Other", y: 3464}];
+
+      var width = 600;
+      var height = 400;
+      var margin = {top: 25, left: 85, right: 25, bottom: 150};
+
+      var svg = d3.select("#chart")
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+      var xScale = d3.scaleBand()
+        .domain(["Instruction", "Research", "Academic support", "Student services", "Institutional support", "Auxiliary enterprises", "Other"])
+        .rangeRound([margin.left, width-margin.right])
+        .padding(0.25);
+
+        var xAxis = svg.append("g")
+        .attr("class","axis")
+        .attr("transform", `translate(0,${height-margin.bottom})`)
+        .call(d3.axisBottom().scale(xScale))
+        .selectAll("text")
+        .style("text-anchor", "end")
+        .attr("dx", "-.8em")
+        .attr("dy", ".15em")
+        .attr("transform","rotate(-65)");
+
+      var yScale = d3.scaleLinear()
+        .domain([0,500000])
+        .range([height-margin.bottom, margin.top]);
+
+      var yAxis = svg.append("g")
+        .attr("class", "axis")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft().scale(yScale).ticks(5));
+
+        var xLabel = svg.append("text")
+        .attr("class","axisLabel")
+        .attr("x",width/2)
+        .attr("y",height-35)
+        .attr("text-anchor","middle")
+        .text("Operating Expense");
+
+        var yLabel = svg.append("text")
+        .attr("class","axisLabel")
+        .attr("transform","rotate(-90)")
+        .attr("x",(-height+160)/2)
+        .attr("y",20)
+        .attr("text-anchor","middle")
+        .text("Cost (thousands of dollars)");
+
+
+      function update(data){
+        var barLabel = svg.selectAll(".barLabel")
+        .data(data)
+
+        barLabel.enter()
+          .append("text")
+          .merge(barLabel)
+            .classed("barLabel", true)
+            .attr("x", function(d){return xScale(d.x);})
+            .attr("y", function(d){return yScale(d.y);})
+            .attr("dy", -5)
+            .text(function(d){return (`$${d.y.toLocaleString()}`);});
+
+        var bar = svg.selectAll("rect")
+          .data(data)
+
+        bar.enter()
+          .append("rect")
+          .merge(bar)
+          .transition()
+          .duration(500)
+            .attr("class", "bar")
+            .attr("x", function(d){return xScale(d.x);})
+            .attr("y", function(d){return yScale(d.y);})
+            .attr("width", xScale.bandwidth())
+            .attr("height", function(d){return height-margin.bottom-yScale(d.y);})
+            .attr("fill","#3d8f3d")
+            .attr("stroke", "#000000")
+            .attr("stroke-width", "0");
+
+        if (data == data1) {
+          document.getElementById('titleYear').innerHTML = 2015;
+          document.getElementById('totalExpense').innerHTML = "$988,485";
+          document.getElementById('button1').className = "buttonSelected";
+          document.getElementById('button2').className = "buttonNormal";
+          document.getElementById('button3').className = "buttonNormal";
+          document.getElementById('button4').className = "buttonNormal";
+          document.getElementById('button5').className = "buttonNormal";
+        } else if (data == data2) {
+          document.getElementById('titleYear').innerHTML = 2016;
+          document.getElementById('totalExpense').innerHTML = "$1,035,679";
+          document.getElementById('button1').className = "buttonNormal";
+          document.getElementById('button2').className = "buttonSelected";
+          document.getElementById('button3').className = "buttonNormal";
+          document.getElementById('button4').className = "buttonNormal";
+          document.getElementById('button5').className = "buttonNormal";
+        } else if (data == data3) {
+          document.getElementById('titleYear').innerHTML = 2017;
+          document.getElementById('totalExpense').innerHTML = "$1,095,324";
+          document.getElementById('button1').className = "buttonNormal";
+          document.getElementById('button2').className = "buttonNormal";
+          document.getElementById('button3').className = "buttonSelected";
+          document.getElementById('button4').className = "buttonNormal";
+          document.getElementById('button5').className = "buttonNormal";
+        } else if (data == data4) {
+          document.getElementById('titleYear').innerHTML = 2018;
+          document.getElementById('totalExpense').innerHTML = "$1,198,896";
+          document.getElementById('button1').className = "buttonNormal";
+          document.getElementById('button2').className = "buttonNormal";
+          document.getElementById('button3').className = "buttonNormal";
+          document.getElementById('button4').className = "buttonSelected";
+          document.getElementById('button5').className = "buttonNormal";
+        } else if (data == data5) {
+          document.getElementById('titleYear').innerHTML = 2019;
+          document.getElementById('totalExpense').innerHTML = "$1,269,456";
+          document.getElementById('button1').className = "buttonNormal";
+          document.getElementById('button2').className = "buttonNormal";
+          document.getElementById('button3').className = "buttonNormal";
+          document.getElementById('button4').className = "buttonNormal";
+          document.getElementById('button5').className = "buttonSelected";
+        };
+
+          }
+
+      update(data5);
+
+    </script>
+  </body>
+</html>
